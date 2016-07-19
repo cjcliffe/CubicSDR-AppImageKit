@@ -8,7 +8,7 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 	cp AppImageKit/AppRun CubicSDR.AppDir/
 	chmod +x CubicSDR.AppDir/AppRun
 	mkdir -p CubicSDR.AppDir/usr/bin
-	cp -R build_stage/CubicSDR/build/x64/* CubicSDR.AppDir/usr/bin/ || cp -R build_stage/CubicSDR/build/x86/* CubicSDR.AppDir/usr/bin/
+	cp -R build_stage/CubicSDR/build/x64/* CubicSDR.AppDir/usr/bin/ 
 	mkdir -p CubicSDR.AppDir/usr/local/lib/
 	cp -R /usr/local/lib/SoapySDR CubicSDR.AppDir/usr/local/lib/
 
