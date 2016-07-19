@@ -1,6 +1,6 @@
 all: CubicSDR.AppImage
 
-CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF SoapyRedPitaya AppImageKit
+CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF AppImageKit
 	rm -rf CubicSDR.AppDir CubicSDR.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
@@ -92,6 +92,12 @@ SoapyRedPitaya: SoapySDR hackrf
 	sudo ldconfig
 	SoapySDRUtil --info
 
+SoapyBladeRF: SoapySDR libbladerf
+	scripts/update_repo.sh build_stage/SoapyBladeRF https://github.com/pothosware/SoapyBladeRF.git
+	mkdir -p build_stage/SoapyBladeRF/build || true
+	cd build_stage/SoapyBladeRF/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
 
 
 
@@ -143,6 +149,19 @@ build_stage/hackrf.built: build-stage
 
 hackrf: build_stage/hackrf.built
 
+
+build_stage/libbladerf.built: build-stage
+	scripts/update_repo.sh build_stage/bladerf https://github.com/Nuand/bladeRF
+	mkdir -p build_stage/bladerf/host/build || true
+	cd build_stage/bladerf/host/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	touch build_stage/libbladerf.built
+
+libbladerf: build_stage/libbladerf.built
+
+
+
+https://github.com/pothosware/SoapyBladeRF.git
 
 
 build_stage/hamlib.built: build-stage
