@@ -11,9 +11,12 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 	cp -R build_stage/CubicSDR/build/x64/* CubicSDR.AppDir/usr/bin/
 	mkdir -p CubicSDR.AppDir/usr/local/lib/
 	cp -R /usr/local/lib/SoapySDR CubicSDR.AppDir/usr/local/lib/
+
 	mkdir -p CubicSDR.AppDir/usr/lib
 	strip CubicSDR.AppDir/usr/bin/CubicSDR
-	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps && move_lib && delete_blacklisted && patch_usr
+	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps
+	rm -rf CubicSDR.AppDir/usr/local/lib/libmirsdrapi*
+	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && move_lib && delete_blacklisted && patch_usr
 	cd CubicSDR.AppDir && mv usr/lib/x86_64-linux-gnu/pulseaudio/* usr/lib/x86_64-linux-gnu/ && rm -r usr/lib/x86_64-linux-gnu/pulseaudio/
 	cd CubicSDR.AppDir && mv usr/local/lib/* usr/lib && rm -r usr/local/
 	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \; 
@@ -99,6 +102,12 @@ SoapyBladeRF: SoapySDR libbladerf
 	sudo ldconfig
 	SoapySDRUtil --info
 
+SoapySDRPlay: SoapySDR
+	scripts/update_repo.sh build_stage/SoapySDRPlay https://github.com/pothosware/SoapySDRPlay.git
+	mkdir -p build_stage/SoapySDRPlay/build || true
+	cd build_stage/SoapySDRPlay/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
 
 
 build_stage/wxWidgets.built:
