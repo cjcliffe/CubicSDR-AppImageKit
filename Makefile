@@ -1,7 +1,7 @@
 all: CubicSDR.AppImage
 
 CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF AppImageKit
-	rm -rf CubicSDR.AppDir CubicSDR.AppImage
+	rm -rf CubicSDR.AppDir CubicSDR*.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
 	cp build_stage/CubicSDR/src/CubicSDR.png CubicSDR.AppDir/
@@ -17,12 +17,12 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps
 	rm -rf CubicSDR.AppDir/usr/local/lib/libmirsdrapi*
 	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && move_lib && delete_blacklisted && patch_usr
-	cd CubicSDR.AppDir && mv usr/lib/x86_64-linux-gnu/pulseaudio/* usr/lib/x86_64-linux-gnu/ && rm -r usr/lib/x86_64-linux-gnu/pulseaudio/
+	cd CubicSDR.AppDir && mv usr/lib/`uname -m`-linux-gnu/pulseaudio/* usr/lib/`uname -m`-linux-gnu/ && rm -r usr/lib/`uname -m`-linux-gnu/pulseaudio/
 	cd CubicSDR.AppDir && mv usr/local/lib/* usr/lib && rm -r usr/local/
 	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \; 
 	
 	chmod +x AppImageKit/AppImageAssistant
-	AppImageKit/AppImageAssistant CubicSDR.AppDir CubicSDR.AppImage
+	AppImageKit/AppImageAssistant CubicSDR.AppDir CubicSDR-`scripts/getCubicSDRVer.sh`-`uname -m`.AppImage
 
 
 AppImageKit/AppImageKit.downloaded:
