@@ -160,10 +160,6 @@ build_stage/libbladerf.built: build-stage
 libbladerf: build_stage/libbladerf.built
 
 
-
-https://github.com/pothosware/SoapyBladeRF.git
-
-
 build_stage/hamlib.built: build-stage
 	scripts/update_repo.sh build_stage/hamlib https://github.com/N0NB/hamlib.git
 	cd build_stage/hamlib && ./autogen.sh && ./configure && make -j4 && sudo make install
