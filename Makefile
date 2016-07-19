@@ -1,6 +1,6 @@
 all: CubicSDR.AppImage
 
-CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF AppImageKit
+CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF SoapyRedPitaya AppImageKit
 	rm -rf CubicSDR.AppDir CubicSDR.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
@@ -84,6 +84,15 @@ SoapyHackRF: SoapySDR hackrf
 	cd build_stage/SoapyHackRF/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
 	sudo ldconfig
 	SoapySDRUtil --info
+
+SoapyRedPitaya: SoapySDR hackrf
+	scripts/update_repo.sh build_stage/SoapyRedPitaya https://github.com/pothosware/SoapyRedPitaya.git
+	mkdir -p build_stage/SoapyRedPitaya/build || true
+	cd build_stage/SoapyRedPitaya/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
+
+
 
 
 build_stage/wxWidgets.built:
