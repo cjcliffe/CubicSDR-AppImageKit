@@ -1,6 +1,6 @@
 all: CubicSDR.AppImage
 
-CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio AppImageKit
+CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF AppImageKit
 	rm -rf CubicSDR.AppDir CubicSDR.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
@@ -78,6 +78,12 @@ SoapyAudio: SoapySDR
 	SoapySDRUtil --info
 
 
+SoapyHackRF: SoapySDR hackrf
+	scripts/update_repo.sh build_stage/SoapyHackRF https://github.com/pothosware/SoapyHackRF.git
+	mkdir -p build_stage/SoapyHackRF/build || true
+	cd build_stage/SoapyHackRF/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
 
 
 build_stage/wxWidgets.built:
@@ -117,6 +123,17 @@ build_stage/libairspy.built: build-stage
 	touch build_stage/libairspy.built
 
 libairspy: build_stage/libairspy.built
+
+
+build_stage/hackrf.built: build-stage
+	scripts/update_repo.sh build_stage/hackrf https://github.com/mossmann/hackrf.git
+	mkdir -p build_stage/hackrf/host/build || true
+	cd build_stage/hackrf/host/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	touch build_stage/hackrf.built
+
+hackrf: build_stage/hackrf.built
+
 
 
 build_stage/hamlib.built: build-stage
