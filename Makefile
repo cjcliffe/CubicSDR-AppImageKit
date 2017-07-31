@@ -146,7 +146,7 @@ build_stage/bladerf: build_stage
 
 build_stage/hamlib: build_stage
 	scripts/update_repo.sh build_stage/hamlib https://github.com/N0NB/hamlib.git
-	cd build_stage/hamlib && ./autogen.sh && ./configure && make -j4 && sudo make install
+	cd build_stage/hamlib && ./bootstrap && ./configure && make -j4 && sudo make install
 	sudo ldconfig
 
 
