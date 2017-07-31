@@ -28,9 +28,9 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 
 AppImageKit: 
 	mkdir -p AppImageKit || true
-	cd AppImageKit/ && wget -c https://github.com/probonopd/AppImageKit/releases/download/5/AppRun
-	cd AppImageKit/ && wget -c https://github.com/probonopd/AppImageKit/releases/download/5/AppImageAssistant
-	wget -q https://github.com/probonopd/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppRun
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppImageAssistant
+	wget -q https://github.com/AppImage/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
 
 
 
