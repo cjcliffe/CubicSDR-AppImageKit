@@ -28,9 +28,9 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 
 AppImageKit: 
 	mkdir -p AppImageKit || true
-	cd AppImageKit/ && wget -c https://github.com/probonopd/AppImageKit/releases/download/5/AppRun
-	cd AppImageKit/ && wget -c https://github.com/probonopd/AppImageKit/releases/download/5/AppImageAssistant
-	wget -q https://github.com/probonopd/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppRun
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppImageAssistant
+	wget -q https://github.com/AppImage/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
 
 
 
@@ -146,7 +146,7 @@ build_stage/bladerf: build_stage
 
 build_stage/hamlib: build_stage
 	scripts/update_repo.sh build_stage/hamlib https://github.com/N0NB/hamlib.git
-	cd build_stage/hamlib && ./autogen.sh && ./configure && make -j4 && sudo make install
+	cd build_stage/hamlib && ./bootstrap && ./configure && make -j4 && sudo make install
 	sudo ldconfig
 
 
