@@ -15,9 +15,9 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio Soapy
 
 	mkdir -p CubicSDR.AppDir/usr/lib
 	strip CubicSDR.AppDir/usr/bin/CubicSDR
-	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps
+	bash -c ". AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps"
 	rm -rf CubicSDR.AppDir/usr/local/lib/libmirsdrapi*
-	. AppImageKit/functions.sh && cd CubicSDR.AppDir/ && move_lib && delete_blacklisted && patch_usr
+	bash -c ". AppImageKit/functions.sh && cd CubicSDR.AppDir/ && move_lib && delete_blacklisted && patch_usr"
 	cd CubicSDR.AppDir && mv usr/lib/`uname -m`-linux-gnu/pulseaudio/* usr/lib/`uname -m`-linux-gnu/ && rm -r usr/lib/`uname -m`-linux-gnu/pulseaudio/
 	cd CubicSDR.AppDir && mv usr/local/lib/* usr/lib && rm -r usr/local/
 	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \; 
@@ -162,3 +162,4 @@ clean:
 	rm -rf AppImageKit
 
 	
+
