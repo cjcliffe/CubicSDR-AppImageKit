@@ -43,14 +43,14 @@ CubicSDR: SoapySDR build_stage/liquid-dsp build_stage/wxWidgets-3.1.1 build_stag
 
 
 SoapySDR: build_stage
-	scripts/update_repo.sh build_stage/SoapySDR https://github.com/pothosware/SoapySDR.git maint
+	scripts/update_repo.sh build_stage/SoapySDR https://github.com/pothosware/SoapySDR.git
 	mkdir -p build_stage/SoapySDR/build || true
 	cd build_stage/SoapySDR/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
 	sudo ldconfig
 	SoapySDRUtil --info
 	
 SoapyRemote: SoapySDR
-	scripts/update_repo.sh build_stage/SoapyRemote https://github.com/pothosware/SoapyRemote.git maint
+	scripts/update_repo.sh build_stage/SoapyRemote https://github.com/pothosware/SoapyRemote.git
 	mkdir -p build_stage/SoapyRemote/build || true
 	cd build_stage/SoapyRemote/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
 	sudo ldconfig
