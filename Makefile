@@ -1,6 +1,6 @@
 all: CubicSDR.AppImage
 
-CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF AppImageKit
+CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF AppImageKit LimeSuite
 	rm -rf CubicSDR.AppDir CubicSDR*.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
@@ -70,6 +70,13 @@ SoapyAirspy: SoapySDR build_stage/libairspy
 	sudo ldconfig
 	SoapySDRUtil --info
 
+SoapyAirspyHF: SoapySDR build_stage/libairspyhf
+	scripts/update_repo.sh build_stage/SoapyAirspyHF https://github.com/pothosware/SoapyAirspyHF.git
+	mkdir -p build_stage/SoapyAirspyHF/build || true
+	cd build_stage/SoapyAirspyHF/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
+
 SoapyAudio: SoapySDR build_stage/hamlib
 	scripts/update_repo.sh build_stage/SoapyAudio https://github.com/pothosware/SoapyAudio.git
 	mkdir -p build_stage/SoapyAudio/build || true
@@ -106,7 +113,11 @@ SoapySDRPlay: SoapySDR
 	sudo ldconfig
 	SoapySDRUtil --info
 
-
+LimeSuite: SoapySDR
+	scripts/update_repo.sh build_stage/LimeSuite https://github.com/myriadrf/LimeSuite.git
+	cd build_stage/LimeSuite/build && /bin/cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+	SoapySDRUtil --info
 
 
 build_stage/wxWidgets-3.1.1:
@@ -130,6 +141,12 @@ build_stage/libairspy: build_stage
 	scripts/update_repo.sh build_stage/libairspy https://github.com/airspy/host.git
 	mkdir -p build_stage/libairspy/build || true
 	cd build_stage/libairspy/build && cmake ../ -DCMAKE_BUILD_TARGET=Release && make -j4 && sudo make install
+	sudo ldconfig
+
+build_stage/libairspyhf: build_stage
+	scripts/update_repo.sh build_stage/libairspyhf https://github.com/airspy/airspyhf.git
+	mkdir -p build_stage/libairspyhf/build || true
+	cd build_stage/libairspyhf/build && cmake ../ -DCMAKE_BUILD_TARGET=Release -DCMAKE_C_FLAGS="-std=gnu11" && make -j4 && sudo make install
 	sudo ldconfig
 
 build_stage/hackrf: build_stage
