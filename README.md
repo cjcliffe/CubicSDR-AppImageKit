@@ -1,7 +1,7 @@
 # CubicSDR-AppImageKit
-AppImageKit build scripts (Ubuntu 14.04 base)
+AppImageKit build scripts (Debian Jessie base)
 
-Recommend build environment is a dedicated Ubuntu VM.
+Recommend build environment is a dedicated VM.
 If you have [vagrant](https://www.vagrantup.com/) installed you can use it to easily provision a build VM.     
 Simply run:  
 
@@ -17,8 +17,8 @@ You can then get rid of the VM by running `vagrant destroy`.
 Alternatively, you can provision a machine manually:  
 
 ```
-$ chmod +x scripts/bootstrap_ubuntu14_04.sh
-$ scripts/bootstrap_ubuntu14_04.sh
+$ chmod +x scripts/bootstrap_debian_jessie.sh
+$ scripts/bootstrap_debian_jessie.sh
 ```
 
 Build AppImage:  
