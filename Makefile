@@ -34,7 +34,7 @@ AppImageKit:
 
 
 
-CubicSDR: SoapySDR build_stage/liquid-dsp build_stage/wxWidgets-3.1.1 build_stage/hamlib
+CubicSDR: SoapySDR build_stage/liquid-dsp build_stage/wxWidgets-3.1.2 build_stage/hamlib
 	scripts/update_repo.sh build_stage/CubicSDR https://github.com/cjcliffe/CubicSDR.git
 	mkdir -p build_stage/CubicSDR/build || true
 	cd build_stage/CubicSDR/build && cmake ../ -DCMAKE_BUILD_TARGET=Release -DUSE_HAMLIB=1 -DwxWidgets_CONFIG_EXECUTABLE=`pwd`/../../wxWidgets-staticlib/bin/wx-config && make -j2 && sudo make install
@@ -120,11 +120,11 @@ LimeSuite: SoapySDR
 	SoapySDRUtil --info
 
 
-build_stage/wxWidgets-3.1.1:
-	cd build_stage && wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.tar.bz2	
-	cd build_stage && tar -xvjf wxWidgets-3.1.1.tar.bz2
-	cd build_stage/wxWidgets-3.1.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webkit --disable-webview --disable-webviewwebkit --prefix=`pwd`/../wxWidgets-staticlib CXXFLAGS="-std=c++0x" --with-libiconv=/usr
-	cd build_stage/wxWidgets-3.1.1 && make -j4 && make install
+build_stage/wxWidgets-3.1.2:
+	cd build_stage && wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxWidgets-3.1.2.tar.bz2	
+	cd build_stage && tar -xvjf wxWidgets-3.1.2.tar.bz2
+	cd build_stage/wxWidgets-3.1.2 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webkit --disable-webview --disable-webviewwebkit --prefix=`pwd`/../wxWidgets-staticlib CXXFLAGS="-std=c++0x" --with-libiconv=/usr
+	cd build_stage/wxWidgets-3.1.2 && make -j4 && make install
 
 build_stage/liquid-dsp: build_stage
 	scripts/update_repo.sh build_stage/liquid-dsp https://github.com/jgaeddert/liquid-dsp.git
