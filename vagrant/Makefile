@@ -5,13 +5,13 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF So
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
 	cp build_stage/CubicSDR/src/CubicSDR.png CubicSDR.AppDir/
-	cp AppImageKit/AppRun CubicSDR.AppDir/
+	cp AppImageKit/AppRun-x86_64 CubicSDR.AppDir/AppRun
 	chmod +x CubicSDR.AppDir/AppRun
 	mkdir -p CubicSDR.AppDir/usr/bin
 	cp -R /usr/local/bin/CubicSDR CubicSDR.AppDir/usr/bin/ 
 	cp -R /usr/local/share/cubicsdr/* CubicSDR.AppDir/usr/bin/ 
 	mkdir -p CubicSDR.AppDir/usr/local/lib/
-	cp -R /usr/local/lib/SoapySDR CubicSDR.AppDir/usr/local/lib/
+	cp -R /usr/local/lib64/SoapySDR CubicSDR.AppDir/usr/local/lib/
 
 	mkdir -p CubicSDR.AppDir/usr/lib
 	strip CubicSDR.AppDir/usr/bin/CubicSDR
@@ -22,14 +22,14 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF So
 	cd CubicSDR.AppDir && mv usr/local/lib/* usr/lib && rm -r usr/local/
 	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \; 
 	
-	chmod +x AppImageKit/AppImageAssistant
-	AppImageKit/AppImageAssistant CubicSDR.AppDir CubicSDR-`scripts/getCubicSDRVer.sh`-`uname -m`.AppImage
+	chmod +x AppImageKit/appimagetool-x86_64.AppImage
+	AppImageKit/appimagetool-x86_64.AppImage CubicSDR.AppDir CubicSDR-`scripts/getCubicSDRVer.sh`-`uname -m`.AppImage
 
 
 AppImageKit: 
 	mkdir -p AppImageKit || true
-	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppRun
-	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/5/AppImageAssistant
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64
+	cd AppImageKit/ && wget -c https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
 	wget -q https://github.com/AppImage/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
 
 
@@ -123,7 +123,7 @@ LimeSuite: SoapySDR
 build_stage/wxWidgets-3.2.1:
 	cd build_stage && wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.1/wxWidgets-3.2.1.tar.bz2	
 	cd build_stage && tar -xvjf wxWidgets-3.2.1.tar.bz2
-	cd build_stage/wxWidgets-3.2.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webkit --disable-webview --disable-webviewwebkit --prefix=`pwd`/../wxWidgets-staticlib CXXFLAGS="-std=c++0x" --with-libiconv=/usr
+	cd build_stage/wxWidgets-3.2.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webview --disable-webviewwebkit --prefix=`pwd`/../wxWidgets-staticlib CXXFLAGS="-std=c++0x" --with-libiconv=/usr
 	cd build_stage/wxWidgets-3.2.1 && make -j4 && make install
 
 build_stage/liquid-dsp: build_stage
