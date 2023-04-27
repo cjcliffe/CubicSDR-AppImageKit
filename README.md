@@ -1,7 +1,7 @@
 # CubicSDR-AppImageKit
 AppImageKit build scripts (CentOS 8 base)
 
-We use a dedicated VM as the build environment. With [vagrant](https://www.vagrantup.com/) installed, you can easily provision a build VM. Simply run:
+Vagrant is required for the build environment. If you don't have [vagrant](https://www.vagrantup.com/) installed, please install it first. Then, you can easily provision and connect to a build VM by running the following commands:
 ```
 $ vagrant up
 $ vagrant ssh
