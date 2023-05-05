@@ -8,24 +8,31 @@ CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF So
 	cp AppImageKit/AppRun-x86_64 CubicSDR.AppDir/AppRun
 	chmod +x CubicSDR.AppDir/AppRun
 	mkdir -p CubicSDR.AppDir/usr/bin
-	mkdir -p CubicSDR.AppDir/usr/lib
+	mkdir -p CubicSDR.AppDir/usr/local/lib
+	mkdir -p CubicSDR.AppDir/usr/local/lib64
 	cp -R /usr/local/bin/CubicSDR CubicSDR.AppDir/usr/bin/
 	mkdir -p CubicSDR.AppDir/usr/local/share/cubicsdr
 	cp -R /usr/local/share/cubicsdr/* CubicSDR.AppDir/usr/local/share/cubicsdr/
 	cp -R /usr/local/share/cubicsdr/* CubicSDR.AppDir/usr/bin/
-	cp -R /usr/local/lib64/SoapySDR CubicSDR.AppDir/usr/lib/
-	cp -R /usr/local/lib/* CubicSDR.AppDir/usr/lib/
+	cp -R /usr/local/lib64/* CubicSDR.AppDir/usr/local/lib64/
+	cp -R /usr/local/lib/* CubicSDR.AppDir/usr/local/lib/
 
 	strip CubicSDR.AppDir/usr/bin/CubicSDR
 	chmod -R 777 CubicSDR.AppDir
 	bash -c ". AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps"
+	# Not sure why this doesn't always work the first time
 	chmod -R 777 CubicSDR.AppDir
 	bash -c ". AppImageKit/functions.sh && cd CubicSDR.AppDir/ && copy_deps"
 	rm -rf CubicSDR.AppDir/usr/lib/libmirsdrapi*
 	bash -c ". AppImageKit/functions.sh && cd CubicSDR.AppDir/ && move_lib && delete_blacklisted && patch_usr"
 	chmod -R 777 CubicSDR.AppDir
-	
-	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \; 
+
+	mv CubicSDR.AppDir/usr/local/lib64/* CubicSDR.AppDir/usr/lib64/
+	mv CubicSDR.AppDir/usr/local/lib/* CubicSDR.AppDir/usr/lib/
+	mv CubicSDR.AppDir/usr/lib64/SoapySDR CubicSDR.AppDir/usr/local/lib64/SoapySDR
+	rm -rf CubicSDR.AppDir/usr/local/lib
+
+	cd CubicSDR.AppDir/ && find usr/ -type f -exec sed -i -e "s|/usr/local|./////////|g" {} \;
 	
 	chmod +x AppImageKit/appimagetool-x86_64.AppImage
 	AppImageKit/appimagetool-x86_64.AppImage CubicSDR.AppDir CubicSDR-`scripts/getCubicSDRVer.sh`-`uname -m`.AppImage
