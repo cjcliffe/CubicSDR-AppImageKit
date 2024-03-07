@@ -9,6 +9,8 @@ Vagrant.configure("2") do |config|
 
    config.vm.provider "virtualbox" do |vb|
      vb.memory = "2048"
+     vb.customize ["modifyvm", :id, "--ioapic", "on"]
+     vb.customize ["modifyvm", :id, "--cpus", "2"]   
    end
 
   config.vm.provision "shell", path: "vagrant/scripts/bootstrap_centos.sh"
