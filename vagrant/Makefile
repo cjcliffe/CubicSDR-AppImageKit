@@ -25,7 +25,7 @@ ALL_DEPS := $(DEPS) $(MODULE_DEPS)
 
 all: $(APPIMAGE_TARGET)
 
-$(APPIMAGE_TARGET): CubicSDR $(DEPS)
+$(APPIMAGE_TARGET): AppImageKit CubicSDR $(DEPS)
 	rm -rf CubicSDR.AppDir CubicSDR*.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
