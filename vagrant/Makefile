@@ -1,10 +1,31 @@
 NPROC := 2
-SOAPY_ABI_VERSION := $((shell sed -n 's/^\#define SOAPY_SDR_ABI_VERSION "\([0-9\.-]*\)"/\1/p' /usr/local/include/SoapySDR/Version.h)
-SOAPY_MOD_PATH := /usr/local/lib/SoapySDR/modules$(SOAPY_ABI_VERSION)
 
-all: CubicSDR.AppImage
+APPIMAGE_TARGET := CubicSDR.AppImage
+DEPS := SoapySDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF LimeSuite
+MODULE_DEPS := rtlsdr libairspy libairspyhf hackrf bladerf 
 
-CubicSDR.AppImage: CubicSDR SoapyRemote SoapyRTLSDR SoapyAirspy SoapyAirspyHF SoapyAudio SoapyHackRF SoapyRedPitaya SoapyBladeRF AppImageKit LimeSuite
+LimeSuite_REPO := https://github.com/myriadrf/LimeSuite.git
+
+rtlsdr_REPO := https://github.com/rtlsdrblog/rtl-sdr-blog.git
+libairspy_REPO := https://github.com/airspy/host.git
+
+libairspyhf_REPO := https://github.com/airspy/airspyhf.git
+libairspyhf_FLAGS := -DCMAKE_C_FLAGS=-std=gnu11
+
+hackrf_REPO := https://github.com/mossmann/hackrf.git
+hackrf_SRCDIR := /host
+
+bladerf_REPO := https://github.com/Nuand/bladeRF
+bladerf_FLAGS := -DCMAKE_C_FLAGS=-std=gnu99
+bladerf_SRCDIR := /host
+
+ALL_DEPS := $(DEPS) $(MODULE_DEPS)
+
+.PHONY: all clean $(ALL_DEPS)
+
+all: $(APPIMAGE_TARGET)
+
+$(APPIMAGE_TARGET): CubicSDR $(DEPS)
 	rm -rf CubicSDR.AppDir CubicSDR*.AppImage
 	mkdir CubicSDR.AppDir
 	cp build_stage/CubicSDR/build/CubicSDR.desktop CubicSDR.AppDir/
@@ -50,113 +71,69 @@ AppImageKit:
 	wget -q https://github.com/AppImage/AppImages/raw/master/functions.sh -O AppImageKit/functions.sh
 
 
-# Macro for for cloning, building, and installing with CMake
-define BUILD_AND_INSTALL
-	scripts/update_repo.sh build_stage/$(1) $(2)
-	mkdir -p build_stage/$(1)/build
-	cmake -S build_stage/$(1) -B build_stage/$(1)/build -DCMAKE_BUILD_TYPE=Release $(3)
-	cd build_stage/$(1)/build && make -j$(NPROC) && sudo make install
-	sudo ldconfig
-endef
-
-CubicSDR: SoapySDR /usr/local/bin/CubicSDR
-/usr/local/bin/CubicSDR: build_stage/liquid-dsp build_stage/wxWidgets-3.2.1 build_stage/hamlib 
+CubicSDR: build_status/CubicSDR.built
+build_status/CubicSDR.built: SoapySDR liquid-dsp wxWidgets-3.2.1 hamlib 
 	scripts/update_repo.sh build_stage/CubicSDR https://github.com/cjcliffe/CubicSDR.git
 	mkdir -p build_stage/CubicSDR/build || true
 	cmake -S build_stage/CubicSDR -B build_stage/CubicSDR/build -DCMAKE_BUILD_TYPE=Release -DUSE_HAMLIB=1 -DwxWidgets_CONFIG_EXECUTABLE=/vagrant/build_stage/wxWidgets-staticlib/bin/wx-config 
 	cd build_stage/CubicSDR/build && make -j$(NPROC) && sudo make install
+	touch $@
 
-SoapySDR: /usr/local/lib64/libSoapySDR.so
-/usr/local/lib64/libSoapySDR.so: build_stage
-	$(call BUILD_AND_INSTALL,SoapySDR,https://github.com/pothosware/SoapySDR.git)
-	
-SoapyRemote: $(SOAPY_MOD_PATH)/libremoteSupport.so
-$(SOAPY_MOD_PATH)/libremoteSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyRemote,https://github.com/pothosware/SoapyRemote.git)
+$(ALL_DEPS): %: build_status/%.built
+	@echo "$* is built or up to date"
 
-SoapyRTLSDR: build_stage/rtl-sdr $(SOAPY_MOD_PATH)/librtlsdrSupport.so
-$(SOAPY_MOD_PATH)/librtlsdrSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyRTLSDR,https://github.com/pothosware/SoapyRTLSDR.git)
+build_status/%.built: build_stage
+	$(eval REPO_VAR_NAME=$*_REPO)
+	$(eval REPO_VALUE=$(value ${REPO_VAR_NAME}))
+	@if [ -z "$(REPO_VALUE)" ]; then \
+		echo "'${REPO_VAR_NAME}' is not set. Using default repo.";\
+		scripts/update_repo.sh build_stage/$* https://github.com/pothosware/$*.git;\
+	else \
+		scripts/update_repo.sh build_stage/$* $(REPO_VALUE);\
+	fi
+	mkdir -p build_stage/$*/build
+	cmake -S build_stage/$*${$*_SRCDIR} -B build_stage/$*/build -DCMAKE_BUILD_TYPE=Release ${$*_FLAGS}
+	cd build_stage/$*/build && make -j$(NPROC) && sudo make install
+	sudo ldconfig
+	touch $@
 
-SoapyAirspy: build_stage/libairspy $(SOAPY_MOD_PATH)/libairspySupport.so
-$(SOAPY_MOD_PATH)/libairspySupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyAirspy,https://github.com/pothosware/SoapyAirspy.git)
+build_status/SoapyRTLSDR.built: rtlsdr
+build_status/SoapyAirspy.built: libairspy
+build_status/SoapyAirspyHF.built: libairspyhf
+build_status/SoapyHackRF.built: hackrf
+build_status/SoapyBladeRF.built: bladerf
 
-SoapyAirspyHF: build_stage/libairspyhf $(SOAPY_MOD_PATH)/libairspyhfSupport.so
-$(SOAPY_MOD_PATH)/libairspyhfSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyAirspyHF,https://github.com/pothosware/SoapyAirspyHF.git)
+SoapySDRPlay: build_status/SoapySDRPlay.built
 
-SoapyAudio: build_stage/hamlib $(SOAPY_MOD_PATH)/libaudioSupport.so
-$(SOAPY_MOD_PATH)/libaudioSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyAudio,https://github.com/pothosware/SoapyAudio.git)
-
-SoapyHackRF: build_stage/hackrf $(SOAPY_MOD_PATH)/libHackRFSupport.so
-$(SOAPY_MOD_PATH)/libHackRFSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyHackRF,https://github.com/pothosware/SoapyHackRF.git)
-
-SoapyRedPitaya: $(SOAPY_MOD_PATH)/libRedPitaya.so
-$(SOAPY_MOD_PATH)/libRedPitaya.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyRedPitaya,https://github.com/pothosware/SoapyRedPitaya.git)
-
-SoapyBladeRF: build_stage/bladerf $(SOAPY_MOD_PATH)/libbladeRFSupport.so
-$(SOAPY_MOD_PATH)/libbladeRFSupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapyBladeRF,https://github.com/pothosware/libbladeRFSupport.git)
-
-SoapySDRPlay: $(SOAPY_MOD_PATH)/libsdrPlaySupport.so
-$(SOAPY_MOD_PATH)/libsdrPlaySupport.so: SoapySDR
-	$(call BUILD_AND_INSTALL,SoapySDRPlay,https://github.com/pothosware/SoapySDRPlay.git)
-
-LimeSuite: $(SOAPY_MOD_PATH)/libLMS7Support.so
-$(SOAPY_MOD_PATH)/libLMS7Support.so: SoapySDR
-	$(call BUILD_AND_INSTALL,LimeSuite,https://github.com/myriadrf/LimeSuite.git)
-
-
-build_stage/wxWidgets-3.2.1: /vagrant/build_stage/wxWidgets-staticlib/bin/wx-config
-/vagrant/build_stage/wxWidgets-staticlib/bin/wx-config: build_stage
-	cd build_stage && wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.1/wxWidgets-3.2.1.tar.bz2	
+wxWidgets-3.2.1: build_status/wxWidgets.built
+build_status/wxWidgets.built: build_stage
+	cd build_stage && wget -N https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.1/wxWidgets-3.2.1.tar.bz2	
 	cd build_stage && tar -xvjf wxWidgets-3.2.1.tar.bz2
 	cd build_stage/wxWidgets-3.2.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webview --disable-webviewwebkit --prefix=`pwd`/../wxWidgets-staticlib CXXFLAGS="-std=c++0x" --with-libiconv=/usr
 	cd build_stage/wxWidgets-3.2.1 && make -j$(NPROC) && make install
+	touch $@
 
-build_stage/liquid-dsp: /usr/local/lib/libliquid.so
-/usr/local/lib/libliquid.so: build_stage
+liquid-dsp: build_status/liquid-dsp.built
+build_status/liquid-dsp.built: build_stage 
 	scripts/update_repo.sh build_stage/liquid-dsp https://github.com/jgaeddert/liquid-dsp.git
 	cd build_stage/liquid-dsp && ./bootstrap.sh && ./configure && make && sudo make install
+	touch $@
 
-build_stage/rtl-sdr: /usr/local/lib64/librtlsdr.so
-/usr/local/lib64/librtlsdr.so: build_stage
-	$(call BUILD_AND_INSTALL,rtl-sdr,https://github.com/rtlsdrblog/rtl-sdr-blog.git)
-
-build_stage/libairspy: /usr/local/lib/libairspy.so
-/usr/local/lib/libairspy.so: build_stage
-	$(call BUILD_AND_INSTALL,libairspy,https://github.com/airspy/host.git)
-
-build_stage/libairspyhf: /usr/local/lib/libairspyhf.so
-/usr/local/lib/libairspyhf.so: build_stage
-	$(call BUILD_AND_INSTALL,libairspyhf,https://github.com/airspy/host.git,"-DCMAKE_C_FLAGS=-std=gnu11")
-
-build_stage/hackrf: /usr/local/lib/libhackrf.so
-/usr/local/lib/libhackrf.so: build_stage
-	$(call BUILD_AND_INSTALL,hackrf,https://github.com/mossmann/hackrf.git)
-
-build_stage/bladerf: /usr/local/lib64/libbladeRF.so
-/usr/local/lib64/libbladeRF.so: build_stage
-	$(call BUILD_AND_INSTALL,bladerf,https://github.com/Nuand/bladeRF,"-DCMAKE_C_FLAGS=-std=gnu99")
-
-build_stage/hamlib: /usr/local/lib/libhamlib.so
-/usr/local/lib/libhamlib.so: build_stage
+hamlib: build_status/hamlib.built
+build_status/hamlib.built: build_stage
 	scripts/update_repo.sh build_stage/hamlib https://github.com/Hamlib/Hamlib 4.5.5
 	cd build_stage/hamlib && ./bootstrap && ./configure && make -j$(NPROC) && sudo make install
-
-
-
+	touch $@
 
 
 build_stage:
-	mkdir build_stage || true
+	mkdir -p build_stage
+	mkdir -p build_status
 	chmod +x scripts/*.sh
 
 clean: 
 	rm -rf build_stage
+	rm -rf build_status
 	rm -rf AppImageKit
+	rm -rf CubicSDR.AppDir CubicSDR*.AppImage
 
